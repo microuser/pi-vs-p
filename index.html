@@ -833,7 +833,7 @@
     // Input handling - mouse wheel and click-drag for desktop, touch for mobile
     window.addEventListener('wheel', (event) => {
       event.preventDefault();
-      leftAngle += event.deltaY * 0.001;
+      leftAngle += event.deltaY * 0.00001;
       leftGroup.rotation.z = leftAngle;
       updateSelection();
     });
