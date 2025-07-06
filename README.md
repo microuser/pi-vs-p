@@ -335,15 +335,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📞 Contact & Support
-
-- **Email**: support@piechart-viz.com
-- **Documentation**: [docs.piechart-viz.com](https://docs.piechart-viz.com)
-- **Issues**: [GitHub Issues](https://github.com/your-org/pie-chart-visualization/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-org/pie-chart-visualization/discussions)
-
----
-
 ## 🙏 Acknowledgments
 
 Special thanks to:
