@@ -61,13 +61,6 @@ This creates a powerful dual-encoding system where:
 Angular size represents the category's weight in the overall comparison
 Radial size represents competitive dominance within that specific category
 
-Visualization Benefits
-Traditional Approach Limitations:
-
-Fixed radius shows only proportional relationships
-Difficult to compare absolute competitive advantage
-No indication of category-specific dominance
-
 Our Innovation Advantages:
 
 Immediate competitive insight: Larger radius = category winner
