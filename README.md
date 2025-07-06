@@ -48,8 +48,42 @@ Traditional data visualization methods for multi-category comparisons often fail
 
 ### 1.3 Innovation Summary
 
-Our system introduces **Variable-Radius Pie Charts** as a novel visualization technique, where slice radius corresponds to individual category values rather than traditional angular proportions. This approach enables simultaneous visualization of both absolute values and proportional relationships.
+Our system introduces Category-Proportional Variable-Radius Pie Charts as a novel visualization technique that fundamentally reimagines how comparative data is displayed. Unlike traditional pie charts with fixed radii, our approach calculates each slice's radius based on that entity's proportion of the category total (sum of both competing values).
+Core Algorithm
+For each category comparison, the system:
 
+Calculates category total: categoryTotal = leftValue + rightValue
+Determines entity proportion: entityPercentage = entityValue / categoryTotal
+Scales radius proportionally: sliceRadius = baseRadius × entityPercentage
+
+This creates a powerful dual-encoding system where:
+
+Angular size represents the category's weight in the overall comparison
+Radial size represents competitive dominance within that specific category
+
+Visualization Benefits
+Traditional Approach Limitations:
+
+Fixed radius shows only proportional relationships
+Difficult to compare absolute competitive advantage
+No indication of category-specific dominance
+
+Our Innovation Advantages:
+
+Immediate competitive insight: Larger radius = category winner
+Proportional accuracy: Radius reflects exact winning margin
+Dual information encoding: Both overall weight and competitive standing visible simultaneously
+Intuitive interpretation: Visually larger slice = stronger performance in that area
+
+Example in Practice
+Consider a "Strength" category with Kobold=4, Troglodyte=6:
+
+Category total: 10
+Kobold slice radius: 9 × (4/10) = 3.6 (smaller, indicating weaker strength)
+Troglodyte slice radius: 9 × (6/10) = 5.4 (larger, indicating stronger strength)
+Angular sizes: Both maintain proportional representation in overall comparison
+
+This technique enables researchers and analysts to instantly identify not just which categories matter most (angular size), but also who dominates each category and by how much (radial size), creating a more information-dense and analytically powerful visualization than traditional comparative methods.
 ---
 
 ## 2. Methodology
