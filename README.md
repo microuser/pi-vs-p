@@ -1,18 +1,19 @@
-# Multi-Category 3D Visualization System for Comparative Analysis
-## A Laboratory Report on Advanced Data Visualization Techniques
+# Pi-Vs-Pi 
+## Multi-Category 3D Visualization System for Comparative Analysis
 
+A Laboratory Report on Advanced Data Visualization Techniques by micro
 
-##
-Run
+### Run
+
 https://microuser.github.io/pi-vs-pi/
 
-##
-Thumbnail
+## Thumbnail
+
 <img width="532" alt="image" src="https://github.com/user-attachments/assets/89f06a09-7112-4a10-96aa-aa28e3d22408" />
 
 
-##
-Read
+## Read
+
 https://raw.githubusercontent.com/microuser/pi-vs-pi/refs/heads/main/index.html
 
 
