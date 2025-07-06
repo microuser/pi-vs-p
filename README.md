@@ -141,30 +141,6 @@ The system employs a **stadium aesthetic** with:
 | Memory Usage | <50MB | ✓ Efficient |
 | Data Capacity | 1000+ categories | ✓ Scalable |
 
-### 4.2 Usability Testing Results
-
-**Test Subjects:** 50 users (mix of gamers, researchers, data analysts)
-
-| Feature | Satisfaction | Ease of Use | Utility |
-|---------|--------------|-------------|---------|
-| 3D Visualization | 94% | 89% | 96% |
-| Data Editing | 91% | 85% | 93% |
-| Category Selection | 97% | 92% | 95% |
-| Overall System | 93% | 88% | 94% |
-
-### 4.3 Application Case Studies
-
-#### 4.3.1 D20 Gaming Systems
-- **Character Comparison:** Visualizing attribute differences between character classes
-- **Equipment Analysis:** Comparing weapon/armor statistics
-- **Balance Testing:** Identifying overpowered combinations
-
-#### 4.3.2 Research Applications
-- **Survey Data:** Comparing demographic responses across categories
-- **A/B Testing:** Visualizing performance differences between variants
-- **Academic Research:** Multi-factor comparative studies
-
----
 
 ## 5. Technical Innovation
 
@@ -280,11 +256,6 @@ This research advances the state-of-the-art in comparative data visualization, p
 - Three.js Official Documentation: https://threejs.org/docs/
 - WebGL Specification: https://www.khronos.org/webgl/
 - JSON Schema Validation: https://json-schema.org/
-
-### 9.2 Research Context
-- Tufte, E. R. (2001). *The Visual Display of Quantitative Information*
-- Few, S. (2009). *Now You See It: Simple Visualization Techniques*
-- Murray, S. (2017). *Interactive Data Visualization for the Web*
 
 ### 9.3 Gaming Applications
 - D20 System Reference Document
