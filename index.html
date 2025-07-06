@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kobold vs Troglodyte Comparison</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Pi-Vs-Pi</title>
   <style>
     body { 
       margin: 0; 
@@ -447,9 +447,9 @@
         const ctx = canvas.getContext('2d');
         
         ctx.fillStyle = `#${titleColor.toString(16).padStart(6, '0')}`;
-        ctx.font = 'bold 24px monospace';
+        ctx.font = 'bold 72px monospace'; // Reduced to 72px to fit better
         ctx.textAlign = 'center';
-        ctx.fillText(title.toUpperCase(), 200, 40);
+        ctx.fillText(title.toUpperCase(), 200, 70); // Adjusted Y position for better centering
         
         const texture = new THREE.CanvasTexture(canvas);
         const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
@@ -830,13 +830,108 @@
       updateSelection();
     }
     
-    // Input handling
+    // Input handling - mouse wheel and click-drag for desktop, touch for mobile
     window.addEventListener('wheel', (event) => {
       event.preventDefault();
       leftAngle += event.deltaY * 0.01;
       leftGroup.rotation.z = leftAngle;
       updateSelection();
     });
+    
+    // Mouse click-drag controls (same as touch)
+    let isDragging = false;
+    let dragStartY = null;
+    let dragStartAngle = null;
+    
+    // Mouse down - start drag
+    renderer.domElement.addEventListener('mousedown', (event) => {
+      event.preventDefault();
+      isDragging = true;
+      dragStartY = event.clientY;
+      dragStartAngle = leftAngle;
+      renderer.domElement.style.cursor = 'grabbing';
+    });
+    
+    // Mouse move - rotate based on vertical drag (1 full screen = 1 turn)
+    renderer.domElement.addEventListener('mousemove', (event) => {
+      if (!isDragging) return;
+      event.preventDefault();
+      
+      const deltaY = event.clientY - dragStartY;
+      
+      // Scale drag distance to rotation: full screen height = one full turn (2π radians)
+      const screenHeight = window.innerHeight;
+      const rotationAmount = (deltaY / screenHeight) * (Math.PI * 2);
+      
+      leftAngle = dragStartAngle + rotationAmount;
+      leftGroup.rotation.z = leftAngle;
+      updateSelection();
+    });
+    
+    // Mouse up - end drag
+    renderer.domElement.addEventListener('mouseup', (event) => {
+      event.preventDefault();
+      isDragging = false;
+      dragStartY = null;
+      dragStartAngle = null;
+      renderer.domElement.style.cursor = 'grab';
+    });
+    
+    // Mouse leave - end drag if mouse leaves canvas
+    renderer.domElement.addEventListener('mouseleave', (event) => {
+      if (isDragging) {
+        isDragging = false;
+        dragStartY = null;
+        dragStartAngle = null;
+        renderer.domElement.style.cursor = 'grab';
+      }
+    });
+    
+    // Set initial cursor
+    renderer.domElement.style.cursor = 'grab';
+    
+    // Mobile touch controls (same logic as mouse drag)
+    let touchStartY = null;
+    let touchStartAngle = null;
+    
+    // Touch start - capture initial position
+    renderer.domElement.addEventListener('touchstart', (event) => {
+      event.preventDefault();
+      const touch = event.touches[0];
+      touchStartY = touch.clientY;
+      touchStartAngle = leftAngle;
+    }, { passive: false });
+    
+    // Touch move - rotate based on vertical drag (1 full screen = 1 turn)
+    renderer.domElement.addEventListener('touchmove', (event) => {
+      event.preventDefault();
+      if (touchStartY === null) return;
+      
+      const touch = event.touches[0];
+      const deltaY = touch.clientY - touchStartY;
+      
+      // Scale drag distance to rotation: full screen height = one full turn (2π radians)
+      const screenHeight = window.innerHeight;
+      const rotationAmount = (deltaY / screenHeight) * (Math.PI * 2);
+      
+      leftAngle = touchStartAngle + rotationAmount;
+      leftGroup.rotation.z = leftAngle;
+      updateSelection();
+    }, { passive: false });
+    
+    // Touch end - clean up
+    renderer.domElement.addEventListener('touchend', (event) => {
+      event.preventDefault();
+      touchStartY = null;
+      touchStartAngle = null;
+    }, { passive: false });
+    
+    // Prevent default touch behaviors (zoom, scroll, etc.)
+    renderer.domElement.addEventListener('touchcancel', (event) => {
+      event.preventDefault();
+      touchStartY = null;
+      touchStartAngle = null;
+    }, { passive: false });
     
     // Animation loop
     function animate() {
