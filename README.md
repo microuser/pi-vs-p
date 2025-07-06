@@ -4,8 +4,12 @@
 
 ##
 Run
-
 https://microuser.github.io/pi-vs-pi/
+
+##
+Thumbnail
+<img width="532" alt="image" src="https://github.com/user-attachments/assets/89f06a09-7112-4a10-96aa-aa28e3d22408" />
+
 
 ##
 Read
