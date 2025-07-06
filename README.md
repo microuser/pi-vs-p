@@ -180,13 +180,6 @@ vizSystem.updateData(newDataArray);
 - **Use Case**: Data exploration, pattern discovery
 - **Value Proposition**: Novel visualization techniques for complex datasets
 
-### Revenue Model
-- **Starter**: $19/month (up to 10 attributes)
-- **Professional**: $49/month (up to 50 attributes, API access)
-- **Enterprise**: $129/month (unlimited, custom integrations)
-- **Academic**: $9/month (educational discount)
-
----
 
 ## 🔬 Technical Innovation
 
