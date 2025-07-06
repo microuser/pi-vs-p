@@ -7,6 +7,9 @@ A Laboratory Report on Advanced Data Visualization Techniques by micro
 
 https://microuser.github.io/pi-vs-pi/
 
+## Hoto use
+  Click drag or scroll wheel
+
 ## Thumbnail
 
 <img width="532" alt="image" src="https://github.com/user-attachments/assets/89f06a09-7112-4a10-96aa-aa28e3d22408" />
