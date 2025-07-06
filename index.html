@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kobold vs Troglodyte Comparison</title>
+  <style>
+    body { 
+      margin: 0; 
+      overflow: hidden; 
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      font-family: 'Arial', sans-serif;
+      position: relative;
+    }
+    
+    .ui-panel {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+    }
+    
+    #status { 
+      top: 20px; 
+      right: 20px; 
+      min-width: 200px;
+      display: none;
+    }
+    
+    /* Footer Data Table Styles */
+    #data-table {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      border-radius: 15px 15px 0 0;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.7);
+      z-index: 150;
+      transition: transform 0.3s ease;
+      max-height: 60vh;
+      overflow: hidden;
+    }
+    
+    #data-table.collapsed {
+      transform: translateY(calc(100% - 60px));
+    }
+    
+    #table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      border-radius: 15px 15px 0 0;
+      user-select: none;
+    }
+    
+    #table-header:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    #table-header h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #4CAF50;
+    }
+    
+    #table-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    #table-controls button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    
+    #table-controls button:hover {
+      background: #45a049;
+    }
+    
+    #collapse-btn {
+      background: #2196F3 !important;
+      min-width: 80px;
+    }
+    
+    #collapse-btn:hover {
+      background: #1976D2 !important;
+    }
+    
+    #table-content {
+      padding: 0 20px 20px;
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+    
+    #data-table.collapsed #table-content {
+      display: none;
+    }
+    
+    #comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    
+    #comparison-table th, #comparison-table td {
+      border: 1px solid #444;
+      padding: 10px 12px;
+      text-align: center;
+    }
+    
+    #comparison-table th {
+      background: #333;
+      color: #4CAF50;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    
+    #comparison-table tr {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    #comparison-table tbody tr:hover {
+      background: rgba(76, 175, 80, 0.15);
+      transform: scale(1.02);
+    }
+    
+    #comparison-table tr.selected { 
+      background: rgba(255, 255, 0, 0.3);
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+    }
+    
+    .color-indicator {
+      width: 15px;
+      height: 15px;
+      display: inline-block;
+      border-radius: 3px;
+      margin-right: 8px;
+      vertical-align: middle;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    /* Data Editor Styles */
+    #data-editor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      z-index: 300;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    #editor-panel {
+      background: #2c2c2c;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 600px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+    }
+    
+    #json-editor {
+      width: 100%;
+      height: 300px;
+      background: #1e1e1e;
+      color: white;
+      border: 1px solid #555;
+      border-radius: 5px;
+      padding: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      resize: vertical;
+    }
+    
+    .editor-buttons {
+      margin-top: 15px;
+      text-align: right;
+    }
+    
+    .editor-buttons button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    
+    .save-btn {
+      background: #4CAF50;
+      color: white;
+    }
+    
+    .save-btn:hover {
+      background: #45a049;
+      transform: translateY(-1px);
+    }
+    
+    .cancel-btn {
+      background: #f44336;
+      color: white;
+    }
+    
+    .cancel-btn:hover {
+      background: #d32f2f;
+      transform: translateY(-1px);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      #status {
+        top: 10px;
+        right: 10px;
+        font-size: 12px;
+        padding: 10px;
+      }
+      
+      #table-header {
+        padding: 10px 15px;
+      }
+      
+      #table-header h3 {
+        font-size: 16px;
+      }
+      
+      #comparison-table {
+        font-size: 12px;
+      }
+      
+      #comparison-table th, #comparison-table td {
+        padding: 8px 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="status" class="ui-panel">
+    <h3>🎯 Selection Status</h3>
+    <p id="selection-display">Scroll to select...</p>
+  </div>
+  
+  <!-- Footer Data Table -->
+  <div id="data-table" class="collapsed">
+    <div id="table-header">
+      <h3>📊 Interactive Data Table</h3>
+      <div id="table-controls">
+        <button id="table-edit-btn" title="Edit Data">✏️ Edit</button>
+        <button id="collapse-btn">▲ Show</button>
+      </div>
+    </div>
+    <div id="table-content">
+      <table id="comparison-table">
+        <thead>
+          <tr>
+            <th>Attribute</th>
+            <th style="color: #ff6b6b;">Kobold</th>
+            <th style="color: #4ecdc4;">Troglodyte</th>
+            <th style="color: #ffff55;">Difference</th>
+            <th>Winner</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+  
+  <!-- Data Editor Modal -->
+  <div id="data-editor">
+    <div id="editor-panel">
+      <h2>📝 Edit Competition Data</h2>
+      <p>Modify the JSON data below. Values must be between 1-10.</p>
+      <textarea id="json-editor" placeholder="Loading data..."></textarea>
+      <div class="editor-buttons">
+        <button class="cancel-btn">❌ Cancel</button>
+        <button class="save-btn">💾 Save Changes</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Competition Data
+    let data = [
+      { name: "Strength", kobold: 4, troglodyte: 7 },
+      { name: "Cunning", kobold: 8, troglodyte: 5 },
+      { name: "Aggression", kobold: 6, troglodyte: 8 },
+      { name: "Sociality", kobold: 7, troglodyte: 3 },
+      { name: "Habitat", kobold: 6, troglodyte: 9 },
+      { name: "Intelligence", kobold: 7, troglodyte: 4 },
+      { name: "Stealth", kobold: 8, troglodyte: 6 }
+    ];
+    
+    const colors = [0xff4444, 0x44ff44, 0x4444ff, 0xffff44, 0xff44ff, 0x44ffff, 0xff8844, 0x88ff44];
+    
+    // Three.js Scene Setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 5, 25);
+    camera.lookAt(0, 4, 0);
+    
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x0a0a0a);
+    document.body.appendChild(renderer.domElement);
+    
+    // Lighting
+    scene.add(new THREE.AmbientLight(0x404040, 0.6));
+    const light = new THREE.DirectionalLight(0xffffff, 0.8);
+    light.position.set(0, 20, 10);
+    scene.add(light);
+    
+    // Chart Groups - positioned with 25% more spacing
+    const leftGroup = new THREE.Group();
+    const rightGroup = new THREE.Group();
+    const centerGroup = new THREE.Group();
+    leftGroup.position.set(-6.25, 7.2, 0); // 25% further apart: -5 * 1.25
+    rightGroup.position.set(6.25, 7.2, 0);  // 25% further apart: 5 * 1.25
+    scene.add(leftGroup, rightGroup, centerGroup);
+    
+    // State Management
+    let leftAngle = -Math.PI / 2;
+    let rightAngle = 0;
+    let targetRightAngle = 0;
+    let selectedCategory = null;
+    let leftSlices = [];
+    let rightSlices = [];
+    let leftScoreboard = null;
+    let rightScoreboard = null;
+    
+    // Calculate slice radius based on percentage
+    function calculateSliceRadius(categoryIndex, isLeft) {
+      const leftValue = data[categoryIndex].kobold;
+      const rightValue = data[categoryIndex].troglodyte;
+      const categoryTotal = leftValue + rightValue;
+      const baseRadius = 9;
+      
+      if (isLeft) {
+        const leftPercentage = leftValue / categoryTotal;
+        return baseRadius * leftPercentage;
+      } else {
+        const rightPercentage = rightValue / categoryTotal;
+        return baseRadius * rightPercentage;
+      }
+    }
+    
+    // Create pie slice with variable radius
+    function createSlice(startAngle, endAngle, value, color, radius) {
+      const fixedHeight = 1.5;
+      
+      const shape = new THREE.Shape();
+      shape.moveTo(0, 0);
+      shape.arc(0, 0, radius, startAngle, endAngle, false);
+      shape.lineTo(0, 0);
+      
+      const geometry = new THREE.ExtrudeGeometry(shape, { depth: fixedHeight, bevelEnabled: false });
+      const material = new THREE.MeshLambertMaterial({ color, transparent: true, opacity: 0.8 });
+      return new THREE.Mesh(geometry, material);
+    }
+    
+    // Create 3D cube-based text for scoreboards
+    function create3DCubeText(text, position, color, scale = 1) {
+      const group = new THREE.Group();
+      const cubeSize = 0.3 * scale;
+      const spacing = cubeSize * 1.2;
+      
+      const digitPatterns = {
+        '0': [[1,1,1],[1,0,1],[1,0,1],[1,0,1],[1,1,1]],
+        '1': [[0,1,0],[1,1,0],[0,1,0],[0,1,0],[1,1,1]],
+        '2': [[1,1,1],[0,0,1],[1,1,1],[1,0,0],[1,1,1]],
+        '3': [[1,1,1],[0,0,1],[1,1,1],[0,0,1],[1,1,1]],
+        '4': [[1,0,1],[1,0,1],[1,1,1],[0,0,1],[0,0,1]],
+        '5': [[1,1,1],[1,0,0],[1,1,1],[0,0,1],[1,1,1]],
+        '6': [[1,1,1],[1,0,0],[1,1,1],[1,0,1],[1,1,1]],
+        '7': [[1,1,1],[0,0,1],[0,0,1],[0,0,1],[0,0,1]],
+        '8': [[1,1,1],[1,0,1],[1,1,1],[1,0,1],[1,1,1]],
+        '9': [[1,1,1],[1,0,1],[1,1,1],[0,0,1],[1,1,1]]
+      };
+      
+      const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+      const cubeMaterial = new THREE.MeshLambertMaterial({ color });
+      
+      const digits = text.toString().split('');
+      let xOffset = 0;
+      
+      digits.forEach(digit => {
+        if (digitPatterns[digit]) {
+          const pattern = digitPatterns[digit];
+          
+          for (let row = 0; row < pattern.length; row++) {
+            for (let col = 0; col < pattern[row].length; col++) {
+              if (pattern[row][col] === 1) {
+                const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+                cube.position.set(
+                  xOffset + col * spacing,
+                  -(row * spacing),
+                  0
+                );
+                group.add(cube);
+              }
+            }
+          }
+          xOffset += 4 * spacing;
+        }
+      });
+      
+      group.position.copy(position);
+      return group;
+    }
+    
+    // Create cube-based scoreboard
+    function createCubeScoreboard(title, score, position, titleColor, scoreColor, isCategory = false) {
+      const group = new THREE.Group();
+      
+      const panelGeometry = new THREE.BoxGeometry(8, 6, 0.2);
+      const panelMaterial = new THREE.MeshLambertMaterial({ color: 0x111111 });
+      const panel = new THREE.Mesh(panelGeometry, panelMaterial);
+      group.add(panel);
+      
+      if (isCategory) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 400;
+        canvas.height = 120;
+        const ctx = canvas.getContext('2d');
+        
+        ctx.fillStyle = `#${titleColor.toString(16).padStart(6, '0')}`;
+        ctx.font = 'bold 24px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(title.toUpperCase(), 200, 40);
+        
+        const texture = new THREE.CanvasTexture(canvas);
+        const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+        const sprite = new THREE.Sprite(spriteMaterial);
+        sprite.position.set(0, 2, 0.2);
+        sprite.scale.set(6, 1.5, 1);
+        group.add(sprite);
+      } else {
+        const firstLetter = title[0];
+        const letterPatterns = {
+          'K': [[1,0,1],[1,1,0],[1,0,0],[1,1,0],[1,0,1]],
+          'T': [[1,1,1],[0,1,0],[0,1,0],[0,1,0],[0,1,0]]
+        };
+        
+        if (letterPatterns[firstLetter]) {
+          const titleCubes = new THREE.Group();
+          const titleCubeSize = 0.15;
+          const titleSpacing = titleCubeSize * 1.5;
+          const pattern = letterPatterns[firstLetter];
+          const titleCubeGeometry = new THREE.BoxGeometry(titleCubeSize, titleCubeSize, titleCubeSize);
+          const titleCubeMaterial = new THREE.MeshLambertMaterial({ color: titleColor });
+          
+          for (let row = 0; row < pattern.length; row++) {
+            for (let col = 0; col < pattern[row].length; col++) {
+              if (pattern[row][col] === 1) {
+                const cube = new THREE.Mesh(titleCubeGeometry, titleCubeMaterial);
+                cube.position.set(
+                  col * titleSpacing,
+                  2 + -(row * titleSpacing),
+                  0.2
+                );
+                titleCubes.add(cube);
+              }
+            }
+          }
+          group.add(titleCubes);
+        }
+      }
+      
+      const scoreGroup = create3DCubeText(score, new THREE.Vector3(0, -0.5, 0.2), scoreColor, 1.5);
+      group.add(scoreGroup);
+      
+      group.position.copy(position);
+      return group;
+    }
+    
+
+    
+    // Build pie chart with individual slice radii
+    function buildChart(group, values, isLeft) {
+      group.clear();
+      
+      const total = values.reduce((sum, val) => sum + val, 0);
+      let angle = 0;
+      const slices = [];
+      
+      const orderedIndices = isLeft ? 
+        Array.from({length: values.length}, (_, i) => i) : 
+        Array.from({length: values.length}, (_, i) => values.length - 1 - i);
+      
+      orderedIndices.forEach((originalIndex, displayIndex) => {
+        const value = values[originalIndex];
+        const sliceAngle = (value / total) * Math.PI * 2;
+        const color = colors[originalIndex % colors.length];
+        const sliceRadius = calculateSliceRadius(originalIndex, isLeft);
+        
+        const slice = createSlice(angle, angle + sliceAngle, value, color, sliceRadius);
+        group.add(slice);
+        
+        slices.push({ 
+          startAngle: angle, 
+          endAngle: angle + sliceAngle, 
+          index: originalIndex,
+          displayIndex: displayIndex,
+          radius: sliceRadius
+        });
+        angle += sliceAngle;
+      });
+      
+      return slices;
+    }
+    
+    // Find category at angle
+    function findCategoryAtAngle(angle, slices) {
+      angle = (((-angle) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+      for (const slice of slices) {
+        if (angle >= slice.startAngle && angle < slice.endAngle) {
+          return slice.index;
+        }
+      }
+      return 0;
+    }
+    
+    // Find target angle for right chart
+    function findTargetAngle(categoryIndex, rightSlices) {
+      const targetSlice = rightSlices.find(slice => slice.index === categoryIndex);
+      if (!targetSlice) return 0;
+      
+      const midAngle = (targetSlice.startAngle + targetSlice.endAngle) / 2;
+      return Math.PI - midAngle;
+    }
+    
+    // Update selector cone to overlap with the pie charts
+    function updateSelector() {
+      // Remove old selector
+      const oldSelector = centerGroup.children.find(child => 
+        child.geometry?.type === 'ConeGeometry'
+      );
+      if (oldSelector) {
+        centerGroup.remove(oldSelector);
+      }
+      
+      if (!selectedCategory) return;
+      
+      const leftValue = selectedCategory.kobold;
+      const rightValue = selectedCategory.troglodyte;
+      
+      // Determine which side has the larger value
+      const pointsLeft = leftValue > rightValue;
+      const largerValue = Math.max(leftValue, rightValue);
+      const smallerValue = Math.min(leftValue, rightValue);
+      
+      // Create cone with wide end proportional to larger value
+      const maxRadius = 2.5;
+      const minRadius = 0.4;
+      const wideRadius = maxRadius * (largerValue / 10); // Scale based on value (1-10)
+      
+      // Create cone geometry (wide to narrow) - longer to overlap charts
+      const coneGeometry = new THREE.ConeGeometry(wideRadius, 10, 8); // Longer cone to overlap
+      const coneMaterial = new THREE.MeshLambertMaterial({ 
+        color: 0xffff00,
+        transparent: true,
+        opacity: 0.7
+      });
+      const selector = new THREE.Mesh(coneGeometry, coneMaterial);
+      
+      // Position and orient the cone to overlap with the charts
+      if (pointsLeft) {
+        // Wide end overlaps with left chart (Kobolds)
+        selector.position.set(-2, 7.2, 0); // Overlapping left chart
+        selector.rotation.z = Math.PI / 2; // Point left
+      } else {
+        // Wide end overlaps with right chart (Troglodytes)
+        selector.position.set(2, 7.2, 0); // Overlapping right chart
+        selector.rotation.z = -Math.PI / 2; // Point right
+      }
+      
+      centerGroup.add(selector);
+    }
+    
+    // Select category by index
+    function selectCategory(categoryIndex) {
+      const targetSlice = leftSlices.find(slice => slice.index === categoryIndex);
+      if (!targetSlice) return;
+      
+      const sliceMidAngle = (targetSlice.startAngle + targetSlice.endAngle) / 2;
+      leftAngle = -sliceMidAngle;
+      leftGroup.rotation.z = leftAngle;
+      updateSelection();
+    }
+    
+
+    
+    // Update selection - no visual indicators between charts
+    function updateSelection() {
+      const categoryIndex = findCategoryAtAngle(leftAngle, leftSlices);
+      selectedCategory = data[categoryIndex];
+      targetRightAngle = findTargetAngle(categoryIndex, rightSlices);
+      
+      // Clean up any existing visual elements in center group
+      centerGroup.clear();
+      
+      const leftValue = selectedCategory.kobold;
+      const rightValue = selectedCategory.troglodyte;
+      const categoryTotal = leftValue + rightValue;
+      const leftPercentage = ((leftValue / categoryTotal) * 100).toFixed(1);
+      const rightPercentage = ((rightValue / categoryTotal) * 100).toFixed(1);
+      
+      document.getElementById('selection-display').innerHTML = 
+        `<strong>${selectedCategory.name}</strong><br>
+         Kobold: ${leftValue} (${leftPercentage}%)<br>
+         Troglodyte: ${rightValue} (${rightPercentage}%)<br>
+         Difference: ${Math.abs(leftValue - rightValue)}`;
+      
+      document.querySelectorAll('#comparison-table tr').forEach(row => row.classList.remove('selected'));
+      document.getElementById(`row-${categoryIndex}`)?.classList.add('selected');
+      
+      updateScoreboards();
+    }
+    
+    // Update scoreboards
+    function updateScoreboards() {
+      if (leftScoreboard) scene.remove(leftScoreboard);
+      if (rightScoreboard) scene.remove(rightScoreboard);
+      
+      const oldDiffBoard = scene.children.find(child => child.userData.isDifferenceBoard);
+      if (oldDiffBoard) scene.remove(oldDiffBoard);
+      
+      if (selectedCategory) {
+        const leftPos = new THREE.Vector3(-6.25, 16, 0); // Updated for new spacing
+        leftScoreboard = createCubeScoreboard(
+          'KOBOLDS',
+          selectedCategory.kobold,
+          leftPos,
+          0xFFFF55,
+          0xFF6B6B
+        );
+        scene.add(leftScoreboard);
+        
+        const diffValue = Math.abs(selectedCategory.kobold - selectedCategory.troglodyte);
+        const diffPos = new THREE.Vector3(0, 16, 0);
+        const differenceBoard = createCubeScoreboard(
+          selectedCategory.name,
+          diffValue,
+          diffPos,
+          0xFFFF55,
+          0xFFFF55,
+          true
+        );
+        differenceBoard.userData.isDifferenceBoard = true;
+        scene.add(differenceBoard);
+        
+        const rightPos = new THREE.Vector3(6.25, 16, 0); // Updated for new spacing
+        rightScoreboard = createCubeScoreboard(
+          'TROGLODYTES',
+          selectedCategory.troglodyte,
+          rightPos,
+          0xFFFF55,
+          0x4ECDC4
+        );
+        scene.add(rightScoreboard);
+        
+        createStadiumWall();
+      }
+    }
+    
+    // Create stadium wall
+    function createStadiumWall() {
+      const oldWall = scene.children.find(child => child.userData.isWall);
+      if (oldWall) scene.remove(oldWall);
+      
+      const wallGeometry = new THREE.PlaneGeometry(35, 20);
+      const wallMaterial = new THREE.MeshLambertMaterial({ 
+        color: 0x0a0a0a,
+        transparent: true,
+        opacity: 0.9
+      });
+      const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+      wall.position.set(0, 14, -4);
+      wall.userData.isWall = true;
+      scene.add(wall);
+      
+      const frameGeometry = new THREE.BoxGeometry(32, 8, 0.5);
+      const frameMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+      const frame = new THREE.Mesh(frameGeometry, frameMaterial);
+      frame.position.set(0, 16, -1);
+      scene.add(frame);
+      
+      const separatorGeometry = new THREE.BoxGeometry(0.3, 8, 1);
+      const separatorMaterial = new THREE.MeshLambertMaterial({ color: 0x555555 });
+      
+      const leftSeparator = new THREE.Mesh(separatorGeometry, separatorMaterial);
+      leftSeparator.position.set(-8, 16, -0.5);
+      scene.add(leftSeparator);
+      
+      const rightSeparator = new THREE.Mesh(separatorGeometry, separatorMaterial);
+      rightSeparator.position.set(8, 16, -0.5);
+      scene.add(rightSeparator);
+      
+      const pillarGeometry = new THREE.BoxGeometry(1, 20, 1);
+      const pillarMaterial = new THREE.MeshLambertMaterial({ color: 0x222222 });
+      
+      const leftPillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
+      leftPillar.position.set(-18, 14, -3);
+      scene.add(leftPillar);
+      
+      const rightPillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
+      rightPillar.position.set(18, 14, -3);
+      scene.add(rightPillar);
+    }
+    
+    // Update data table
+    function updateTable() {
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+      
+      data.forEach((item, originalIndex) => {
+        const row = document.createElement('tr');
+        row.id = `row-${originalIndex}`;
+        row.style.cursor = 'pointer';
+        
+        const total = item.kobold + item.troglodyte;
+        const winner = item.kobold > item.troglodyte ? 'K' : item.troglodyte > item.kobold ? 'T' : '=';
+        const winnerColor = winner === 'K' ? '#ff6b6b' : winner === 'T' ? '#4ecdc4' : '#ffff55';
+        
+        row.innerHTML = `
+          <td>
+            <span class="color-indicator" style="background-color: #${colors[originalIndex % colors.length].toString(16).padStart(6, '0')}"></span>
+            ${item.name}
+          </td>
+          <td style="color: #ff6b6b; font-weight: bold;">${item.kobold}</td>
+          <td style="color: #4ecdc4; font-weight: bold;">${item.troglodyte}</td>
+          <td style="color: #ffff55; font-weight: bold;">${Math.abs(item.kobold - item.troglodyte)}</td>
+          <td style="color: ${winnerColor}; font-weight: bold; font-size: 16px;">${winner}</td>
+        `;
+        
+        row.addEventListener('click', () => {
+          selectCategory(originalIndex);
+        });
+        
+        row.addEventListener('mouseenter', () => {
+          if (!row.classList.contains('selected')) {
+            row.style.backgroundColor = 'rgba(76, 175, 80, 0.1)';
+          }
+        });
+        
+        row.addEventListener('mouseleave', () => {
+          if (!row.classList.contains('selected')) {
+            row.style.backgroundColor = '';
+          }
+        });
+        
+        tbody.appendChild(row);
+      });
+    }
+    
+    // Table collapse functionality
+    function toggleTableCollapse() {
+      const table = document.getElementById('data-table');
+      const collapseBtn = document.getElementById('collapse-btn');
+      
+      if (table.classList.contains('collapsed')) {
+        table.classList.remove('collapsed');
+        collapseBtn.textContent = '▼ Hide';
+      } else {
+        table.classList.add('collapsed');
+        collapseBtn.textContent = '▲ Show';
+      }
+    }
+    
+    // Data editor functions
+    function openEditor() {
+      document.getElementById('json-editor').value = JSON.stringify(data, null, 2);
+      document.getElementById('data-editor').style.display = 'flex';
+    }
+    
+    function closeEditor() {
+      document.getElementById('data-editor').style.display = 'none';
+    }
+    
+    function saveData() {
+      try {
+        const newData = JSON.parse(document.getElementById('json-editor').value);
+        
+        if (!Array.isArray(newData)) throw new Error('Data must be an array');
+        for (const item of newData) {
+          if (!item.name || typeof item.kobold !== 'number' || typeof item.troglodyte !== 'number') {
+            throw new Error('Invalid item format');
+          }
+          if (item.kobold < 1 || item.kobold > 10 || item.troglodyte < 1 || item.troglodyte > 10) {
+            throw new Error('Values must be 1-10');
+          }
+        }
+        
+        data = newData;
+        updateVisualization();
+        updateTable();
+        closeEditor();
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+    
+    // Main update function
+    function updateVisualization() {
+      leftSlices = buildChart(leftGroup, data.map(d => d.kobold), true);
+      rightSlices = buildChart(rightGroup, data.map(d => d.troglodyte), false);
+      updateSelection();
+    }
+    
+    // Input handling
+    window.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      leftAngle += event.deltaY * 0.01;
+      leftGroup.rotation.z = leftAngle;
+      updateSelection();
+    });
+    
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+      
+      const angleDiff = targetRightAngle - rightAngle;
+      const normalizedDiff = ((angleDiff + Math.PI) % (Math.PI * 2)) - Math.PI;
+      rightAngle += normalizedDiff * 0.1;
+      rightGroup.rotation.z = rightAngle;
+      
+      renderer.render(scene, camera);
+    }
+    
+    // Event listeners
+    document.getElementById('table-header').addEventListener('click', toggleTableCollapse);
+    document.getElementById('table-edit-btn').addEventListener('click', openEditor);
+    document.querySelector('.cancel-btn').addEventListener('click', closeEditor);
+    document.querySelector('.save-btn').addEventListener('click', saveData);
+    
+    // Handle resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+    
+    // Initialize
+    updateVisualization();
+    updateTable();
+    animate();
+  </script>
+</body>
+</html>
