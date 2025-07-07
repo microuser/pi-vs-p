@@ -39,6 +39,16 @@ build:
 		echo 'cargo not found. Please run make setup.'; \
 	fi
 
+# Build the main application (default)
+build:
+	@echo "Building main Rust app..."
+	cargo build
+
+# Run the TinyText 3D Scoreboard demo binary
+run-scoreboard:
+	@echo "Running TinyText 3D Scoreboard Demo..."
+	cargo run --bin scoreboard
+
 build-html:
 	@echo "Opening index.html in your default browser..."
 	open index.html

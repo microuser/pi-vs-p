@@ -250,7 +250,7 @@ fn create_pie_charts(
 // (No major logic change, but add section marker for clarity)
 
 
-fn create_chart(
+fn create_chart_alt(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
