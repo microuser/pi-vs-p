@@ -43,6 +43,9 @@ build-html:
 	@echo "Opening index.html in your default browser..."
 	open index.html
 
+run:
+	cargo run
+
 debug:
 	@echo "Building in debug mode for Bevy development..."
 	cargo build
