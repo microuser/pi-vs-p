@@ -9,23 +9,87 @@ use bevy::render::render_asset::RenderAssetUsages;
 use std::f32::consts::PI;
 use serde::{Deserialize, Serialize};
 
-// Data structures
+// =========================
+// 1. Data Model & Constants
+// =========================
 #[derive(Serialize, Deserialize, Clone, Debug)]
-struct CompetitionData {
-    name: String,
-    kobold: f32,
-    troglodyte: f32,
+pub struct CompetitionData {
+    pub name: String,
+    pub kobold: f32,
+    pub troglodyte: f32,
 }
 
 #[derive(Resource)]
-struct GameData {
-    data: Vec<CompetitionData>,
-    colors: Vec<Color>,
-    selected_category: usize,
-    left_angle: f32,
-    right_angle: f32,
-    target_right_angle: f32,
+pub struct GameData {
+    pub data: Vec<CompetitionData>,
+    pub colors: Vec<Color>,
+    pub selected_category: usize,
+    pub left_angle: f32,
+    pub right_angle: f32,
+    pub target_right_angle: f32,
 }
+
+const BASE_RADIUS: f32 = 9.0; // For variable-radius algorithm
+const PIE_HEIGHT: f32 = 1.0;
+
+// =========================
+// 2. Visualization Core
+// =========================
+/// Calculate the radius for a given category and entity (kobold/left or troglodyte/right)
+fn calculate_slice_radius(data: &CompetitionData, is_left: bool) -> f32 {
+    let category_total = data.kobold + data.troglodyte;
+    if category_total == 0.0 { return BASE_RADIUS * 0.5; }
+    let entity_value = if is_left { data.kobold } else { data.troglodyte };
+    BASE_RADIUS * (entity_value / category_total)
+}
+
+// =========================
+// 3. Chart Generation
+// =========================
+fn create_chart(
+    commands: &mut Commands,
+    meshes: &mut ResMut<Assets<Mesh>>,
+    materials: &mut ResMut<Assets<StandardMaterial>>,
+    data: &[CompetitionData],
+    colors: &[Color],
+    position: Vec3,
+    is_left: bool,
+) {
+    let total: f32 = data.iter().map(|d| if is_left { d.kobold } else { d.troglodyte }).sum();
+    let mut angle = 0.0;
+    for (i, entry) in data.iter().enumerate() {
+        let value = if is_left { entry.kobold } else { entry.troglodyte };
+        let slice_angle = if total > 0.0 { (value / total) * 2.0 * PI } else { 0.0 };
+        let color = colors[i % colors.len()];
+        let slice_radius = calculate_slice_radius(entry, is_left);
+        let slice_mesh = create_pie_slice_mesh(angle, angle + slice_angle, slice_radius, PIE_HEIGHT);
+        let material = materials.add(StandardMaterial {
+            base_color: color,
+            unlit: false,
+            ..default()
+        });
+        let mut entity = commands.spawn(PbrBundle {
+            mesh: meshes.add(slice_mesh),
+            material,
+            transform: Transform::from_translation(position),
+            ..default()
+        });
+        entity.insert(PieSlice {
+            category_index: i,
+            start_angle: angle,
+            end_angle: angle + slice_angle,
+            is_left,
+        });
+        if is_left {
+            entity.insert(LeftChart);
+        } else {
+            entity.insert(RightChart);
+        }
+        angle += slice_angle;
+    }
+}
+// ... (rest of file continues unchanged for now)
+
 
 // Component markers
 #[derive(Component)]
@@ -150,6 +214,7 @@ fn setup(
     create_scoreboards(&mut commands, &game_data);
 }
 
+/// Spawns both left and right variable-radius pie charts for comparative visualization.
 fn create_pie_charts(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
@@ -157,15 +222,33 @@ fn create_pie_charts(
     game_data: &GameData,
 ) {
     // Left chart (Kobolds)
-    let left_values: Vec<f32> = game_data.data.iter().map(|d| d.kobold).collect();
-    create_chart(commands, meshes, materials, &left_values, &game_data.colors, 
-                Vec3::new(-6.25, 7.2, 0.0), true, &game_data.data);
+    create_chart(
+        commands,
+        meshes,
+        materials,
+        &game_data.data,
+        &game_data.colors,
+        Vec3::new(-6.25, 7.2, 0.0),
+        true,
+    );
 
     // Right chart (Troglodytes)
-    let right_values: Vec<f32> = game_data.data.iter().map(|d| d.troglodyte).collect();
-    create_chart(commands, meshes, materials, &right_values, &game_data.colors, 
-                Vec3::new(6.25, 7.2, 0.0), false, &game_data.data);
+    create_chart(
+        commands,
+        meshes,
+        materials,
+        &game_data.data,
+        &game_data.colors,
+        Vec3::new(6.25, 7.2, 0.0),
+        false,
+    );
 }
+
+// =========================
+// 4. Scoreboard System
+// =========================
+// (No major logic change, but add section marker for clarity)
+
 
 fn create_chart(
     commands: &mut Commands,
